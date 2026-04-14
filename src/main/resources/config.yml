@@ -1,0 +1,23 @@
+server:
+  enabled: true
+  host: "0.0.0.0"
+  port: 59999
+  path: "/noti"
+  backlog: 0
+  worker-threads: 4
+
+auth:
+  token: "supertoken"
+  unauthorized-delay-ms: 3500
+
+parsing:
+  script-file: "parser.js"
+
+rewards:
+  commands:
+    - "say [후원] {player} 님에게 {amount}원 후원이 접수되었습니다."
+    - "minecraft:give {player} diamond 1"
+
+logging:
+  broadcast-to-console: true
+  max-recent-records: 30

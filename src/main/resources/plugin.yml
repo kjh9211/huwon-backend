@@ -1,0 +1,29 @@
+name: huwon
+description: $description
+prefix: MAU
+version: '${version}'
+
+main: kr.kjh9211.huwon.Huwon
+api-version: '1.21'
+load: STARTUP
+
+authors: [ kjh9211 ]
+commands:
+  후원:
+    description: 후원 플러그인 상태를 확인합니다.
+    usage: /후원
+    aliases: [ gndnjs ]
+    permission: huwon.use
+  huwonadmin:
+    description: 후원 플러그인 관리자 명령어입니다.
+    usage: /huwonadmin <reload|status|recent|simulate>
+    permission: huwon.admin
+  huwonreload:
+    description: 후원 플러그인 설정과 파서를 다시 불러옵니다.
+    usage: /huwonreload
+    permission: huwon.admin
+permissions:
+  huwon.use:
+    default: true
+  huwon.admin:
+    default: op
