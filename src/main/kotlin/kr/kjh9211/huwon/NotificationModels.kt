@@ -20,6 +20,7 @@ enum class RequestStatus {
     ACCEPTED,
     REJECTED,
     FAILED,
+    IGNORED,
 }
 
 data class DonationRecord(

@@ -78,6 +78,13 @@ class DonationService(private val plugin: Huwon) {
         }
 
         val match = extractDonation(payload)
+            ?: return RequestOutcome(
+                statusCode = 200,
+                status = RequestStatus.IGNORED,
+                message = "Notification ignored by parser.",
+                processed = false,
+            )
+
         if (match.playerName.isBlank()) {
             return reject(
                 remoteAddress = remoteAddress,
@@ -137,7 +144,7 @@ class DonationService(private val plugin: Huwon) {
         recentRecords.toList().takeLast(limit).reversed()
     }
 
-    private fun extractDonation(payload: NotificationPayload): DonationMatch {
+    private fun extractDonation(payload: NotificationPayload): DonationMatch? {
         return jsDonationParser.parse(payload)
     }
 

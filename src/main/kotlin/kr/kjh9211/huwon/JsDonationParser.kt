@@ -14,14 +14,14 @@ class JsDonationParser(
         }
 
         return try {
-            execute(script, "", "", "", "", requireNonNullPlayerName = true)
+            execute(script, "", "", "", "")
             ReloadResult(true, "파서 검증에 성공했습니다.")
         } catch (exception: Exception) {
             ReloadResult(false, exception.message ?: "파서 검증에 실패했습니다.")
         }
     }
 
-    fun parse(payload: NotificationPayload): DonationMatch {
+    fun parse(payload: NotificationPayload): DonationMatch? {
         val script = loadScript()
         if (script.isBlank()) {
             plugin.logger.warning("Parsing script is empty, donation parsing cannot continue.")
@@ -35,7 +35,6 @@ class JsDonationParser(
                 content = payload.content.orEmpty(),
                 appname = payload.appname.orEmpty(),
                 time = payload.time.orEmpty(),
-                requireNonNullPlayerName = false,
             )
         } catch (exception: Exception) {
             plugin.logger.warning("Failed to execute parsing script: ${exception.message}")
@@ -49,8 +48,7 @@ class JsDonationParser(
         content: String,
         appname: String,
         time: String,
-        requireNonNullPlayerName: Boolean,
-    ): DonationMatch {
+    ): DonationMatch? {
         Context.newBuilder("js").allowAllAccess(false).build().use { context ->
             val bindings = context.getBindings("js")
             bindings.putMember("title", title)
@@ -60,7 +58,7 @@ class JsDonationParser(
 
             context.eval("js", script)
             val result = context.eval("js", "parseDonation(title, content, appname, time)")
-            return readMatch(result, requireNonNullPlayerName)
+            return readMatch(result)
         }
     }
 
@@ -79,16 +77,16 @@ class JsDonationParser(
         return scriptFile.readText(StandardCharsets.UTF_8).trim()
     }
 
-    private fun readMatch(result: Value, requireNonNullPlayerName: Boolean): DonationMatch {
+    private fun readMatch(result: Value): DonationMatch? {
+        if (result.isNull) {
+            return null
+        }
+
         if (!result.hasMembers()) {
             return DonationMatch("", null, null)
         }
 
         val playerName = readString(result, "playerName")
-        if (requireNonNullPlayerName && playerName == null) {
-            throw IllegalStateException("parser.js 검증 실패: parseDonation(...)이 playerName에 null을 반환했습니다.")
-        }
-
         val donorName = readString(result, "donorName")
         val amount = when {
             result.hasMember("amount") && !result.getMember("amount").isNull -> {
